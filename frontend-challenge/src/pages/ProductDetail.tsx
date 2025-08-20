@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { products } from '../data/products'
 import { Product } from '../types/Product'
 import PricingCalculator from '../components/PricingCalculator'
+import { useCart } from '../contexts/CartContext'
 import './ProductDetail.css'
 
 const ProductDetail = () => {
@@ -11,6 +12,7 @@ const ProductDetail = () => {
   const [selectedColor, setSelectedColor] = useState<string>('')
   const [selectedSize, setSelectedSize] = useState<string>('')
   const [quantity, setQuantity] = useState<number>(1)
+  const { addToCart, isInCart } = useCart()
 
   useEffect(() => {
     if (id) {
@@ -26,6 +28,28 @@ const ProductDetail = () => {
       }
     }
   }, [id])
+
+  const handleAddToCart = () => {
+    if (!product || !canAddToCart) return;
+
+    addToCart({
+      productId: product.id,
+      price: product.basePrice, // Precio base, el PricingCalculator maneja descuentos
+      name: product.name,
+      sku: product.sku,
+      image: product.image?.[0],
+      category: product.category
+    });
+
+    // Feedback visual
+    const button = document.querySelector('.btn-add-to-cart');
+    if (button) {
+      button.classList.add('added-to-cart');
+      setTimeout(() => {
+        button.classList.remove('added-to-cart');
+      }, 2000);
+    }
+  };
 
   // Handle loading state
   if (!product) {
@@ -46,6 +70,7 @@ const ProductDetail = () => {
 
   // Validate product status
   const canAddToCart = product.status === 'active' && product.stock > 0
+  const productInCart = isInCart(product.id)
 
   return (
     <div className="product-detail-page">
@@ -92,6 +117,20 @@ const ProductDetail = () => {
                   <span className="status-badge status-inactive l1">❌ No disponible</span>
                 )}
               </div>
+
+              {/* Stock info */}
+              <div className="stock-info">
+                <span className="material-icons">inventory_2</span>
+                <span className="l1">{product.stock} unidades disponibles</span>
+              </div>
+
+              {/* In cart indicator */}
+              {productInCart && (
+                <div className="in-cart-indicator">
+                  <span className="material-icons" style={{color: '#10b981'}}>check_circle</span>
+                  <span className="l1" style={{color: '#10b981'}}>Este producto está en tu carrito</span>
+                </div>
+              )}
             </div>
 
             {/* Description */}
@@ -171,9 +210,10 @@ const ProductDetail = () => {
                     onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
                     className="quantity-input"
                     min="1"
+                    max={product.stock}
                   />
                   <button 
-                    onClick={() => setQuantity(quantity + 1)}
+                    onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
                     className="quantity-btn"
                   >
                     <span className="material-icons">add</span>
@@ -183,20 +223,27 @@ const ProductDetail = () => {
 
               <div className="action-buttons">
                 <button 
-                  className={`btn btn-primary cta1 ${!canAddToCart ? 'disabled' : ''}`}
+                  className={`btn btn-primary cta1 btn-add-to-cart ${!canAddToCart ? 'disabled' : ''} ${productInCart ? 'in-cart' : ''}`}
                   disabled={!canAddToCart}
-                  onClick={() => alert('Función de agregar al carrito por implementar')}
+                  onClick={handleAddToCart}
                 >
-                  <span className="material-icons">shopping_cart</span>
-                  {canAddToCart ? 'Agregar al carrito' : 'No disponible'}
+                  <span className="material-icons">
+                    {productInCart ? 'check' : 'shopping_cart'}
+                  </span>
+                  {!canAddToCart ? 'No disponible' : productInCart ? 'En el carrito' : 'Agregar al carrito'}
                 </button>
                 
                 <button 
                   className="btn btn-secondary cta1"
-                  onClick={() => alert('Función de cotización por implementar')}
+                  onClick={() => {
+                    // Scroll to pricing calculator
+                    document.querySelector('.pricing-section')?.scrollIntoView({ 
+                      behavior: 'smooth' 
+                    });
+                  }}
                 >
                   <span className="material-icons">calculate</span>
-                  Solicitar cotización
+                  Ver calculadora de precios
                 </button>
               </div>
             </div>

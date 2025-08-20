@@ -336,6 +336,147 @@
   margin-bottom: 8px;
 }
 
+/* Estilos para el indicador de stock */
+.stock-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  color: #64748b;
+}
+
+.stock-info .material-icons {
+  font-size: 18px;
+}
+
+/* Indicador de producto en carrito */
+.in-cart-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+}
+
+.in-cart-indicator .material-icons {
+  font-size: 18px;
+}
+
+/* Efectos para el botón de agregar al carrito */
+.btn-add-to-cart {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.btn-add-to-cart.in-cart {
+  background-color: #10b981;
+  border-color: #10b981;
+}
+
+.btn-add-to-cart.added-to-cart {
+  animation: addToCartAnimation 0.5s ease;
+}
+
+@keyframes addToCartAnimation {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+/* Efecto de pulso para items en el carrito */
+.in-cart {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+/* Mejoras para los controles de cantidad */
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.quantity-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.quantity-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.quantity-input {
+  width: 60px;
+  height: 36px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 1rem;
+}
+
+/* Mejoras para los botones de acción */
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.action-buttons .btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .action-buttons .btn {
+    width: 100%;
+  }
+  
+  .quantity-controls {
+    justify-content: center;
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .product-detail {

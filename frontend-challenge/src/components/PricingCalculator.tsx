@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Product } from '../types/Product'
+import { useCart } from '../contexts/CartContext'
 import './PricingCalculator.css'
 
 interface PricingCalculatorProps {
@@ -9,13 +10,14 @@ interface PricingCalculatorProps {
 const PricingCalculator = ({ product }: PricingCalculatorProps) => {
   const [quantity, setQuantity] = useState<number>(1)
   const [selectedBreak, setSelectedBreak] = useState<number>(-1)
+  const { addToCart, isInCart } = useCart()
 
   // Validar y normalizar la cantidad
   const handleQuantityChange = (value: string) => {
     const numValue = parseInt(value) || 1
     const validatedQty = Math.max(1, Math.min(product.stock, numValue))
     setQuantity(validatedQty)
-    setSelectedBreak(-1) // Reset selected break when manually changing quantity
+    setSelectedBreak(-1)
   }
 
   // Find applicable price break for a given quantity
@@ -24,10 +26,7 @@ const PricingCalculator = ({ product }: PricingCalculatorProps) => {
       return null
     }
 
-    // Ordenar breaks por cantidad mínima (por si acaso no están ordenados)
     const sortedBreaks = [...product.priceBreaks].sort((a, b) => b.minQty - a.minQty)
-    
-    // Encontrar el break más alto que aplica para esta cantidad
     return sortedBreaks.find(breakItem => qty >= breakItem.minQty) || sortedBreaks[sortedBreaks.length - 1]
   }
 
@@ -75,11 +74,32 @@ const PricingCalculator = ({ product }: PricingCalculatorProps) => {
     }).format(price)
   }
 
+  const handleAddToCart = () => {
+    addToCart({
+      productId: product.id, // Esto ahora es number, no string
+      price: unitPrice,
+      name: product.name,
+      sku: product.sku,
+      image: product.image?.[0],
+      category: product.category
+    });
+
+    // Feedback visual
+    const button = document.querySelector('.btn-add-to-cart');
+    if (button) {
+      button.classList.add('added-to-cart');
+      setTimeout(() => {
+        button.classList.remove('added-to-cart');
+      }, 2000);
+    }
+  };
+
   const currentPrice = calculatePrice(quantity)
   const unitPrice = getUnitPrice(quantity)
   const discountPercent = getDiscountPercent(quantity)
+  const productInCart = isInCart(product.id)
 
-  // Efecto para seleccionar automáticamente el break correspondiente al cambiar cantidad
+  // Efecto para seleccionar automáticamente el break correspondiente
   useEffect(() => {
     if (product.priceBreaks && product.priceBreaks.length > 0) {
       const applicableBreak = findApplicableBreak(quantity)
@@ -200,14 +220,14 @@ const PricingCalculator = ({ product }: PricingCalculatorProps) => {
           </button>
           
           <button 
-            className="btn btn-primary cta1"
+            className={`btn btn-primary cta1 btn-add-to-cart ${productInCart ? 'in-cart' : ''}`}
             disabled={quantity > product.stock}
-            onClick={() => {
-              alert('Función de agregar al carrito por implementar')
-            }}
+            onClick={handleAddToCart}
           >
-            <span className="material-icons">shopping_cart</span>
-            Agregar al carrito
+            <span className="material-icons">
+              {productInCart ? 'check' : 'shopping_cart'}
+            </span>
+            {productInCart ? 'En el carrito' : 'Agregar al carrito'}
           </button>
         </div>
 
@@ -236,6 +256,16 @@ const PricingCalculator = ({ product }: PricingCalculatorProps) => {
               <span className="info-detail l1">30 días de garantía</span>
             </div>
           </div>
+
+          {productInCart && (
+            <div className="info-item">
+              <span className="material-icons" style={{color: '#10b981'}}>check_circle</span>
+              <div className="info-content">
+                <span className="info-title l1">En tu carrito</span>
+                <span className="info-detail l1">Este producto ya fue agregado</span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

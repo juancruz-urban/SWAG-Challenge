@@ -3,10 +3,12 @@ import Header from './components/Header'
 import ProductList from './pages/ProductList'
 import ProductDetail from './pages/ProductDetail'
 import './App.css'
+import { CartProvider } from './contexts/CartContext'
 
 function App() {
   return (
-    <div className="App">
+    <CartProvider>
+      <div className="App">
       <Header />
       <main>
         <Routes>
@@ -15,6 +17,7 @@ function App() {
         </Routes>
       </main>
     </div>
+    </CartProvider>
   )
 }
 
